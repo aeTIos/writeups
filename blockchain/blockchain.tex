@@ -1,0 +1,128 @@
+
+
+
+
+\documentclass{article}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1.25in]{geometry}
+\title{blockchain}
+\date{2 november 2017}
+\author{Richard van Dijk}
+\usepackage{minted}
+\newminted{python3}{frame=lines, linenos, firstnumber=last, stripnl=false}
+\renewcommand{\contentsname}{Inhoud}
+\pagenumbering{gobble}
+\begin{document}
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{Inleiding}
+Blockchain lijkt het nieuwe hypewoord van deze tijd te worden. Sinds de lancering van Bitcoin in 2009 hebben cryptocurrency, en daarmee ook de achterliggende blockchaintechniek, een hoge vlucht genomen. De interesse in de markt groeit zo snel dat het lijkt op een nieuwe bubbel; zo stegen de aandelen van het Britse bedrijf \textit{On-line Plc} met bijna 400\% nadat de naam van het bedrijf veranderd werd in \textit{On-line Blockchain Plc}. Maar waar ligt de kracht van blockchain en waarom wordt het de `techniek van de toekomst' genoemd? En hoe werkt blockchain precies? Dit artikel beschrijft de achtergrond van blockchain en laat een \textit{proof-of-concept} implementatie zien in Python 3.6.
+
+\section{Geschiedenis}
+Één van de voorlopers van blockchain werd beschreven in 1990, in een artikel over hoe digitale documenten een tijdsaanduiding kunnen krijgen. In dit artikel beschrijven onderzoekers Haber en Stornetta een methode waarbij de \textit{hashes} van een document aan elkaar gelinkt worden, om rommelen met de tijdsaanduiding onmogelijk te maken.
+
+\section{Technische achtergrond}
+\subsection{Een voorbeeldblock}
+Om beter te begrijpen hoe blockchain werkt is het goed om te bekijken wat de structuur van een block in de chain is. De meest simpele implementatie met \textit{proof-of-work} bevat in ieder geval de volgende onderdelen:
+\begin{itemize}
+\item Een block ID;
+\item De \textit{hash} van het voorgaande block;
+\item Gegevens die in het block zijn opgeslagen;
+\item Een \textit{nonce}-waarde.
+\end{itemize}
+In veel gevallen wordt ook een tijdsaanduiding toegevoegd, zodat het block gedateerd is. We zullen nu de verschillende onderdelen van het block uitleggen.
+
+Het block ID is het volgnummer van het block in de chain. Ieder nieuw block krijgt een oplopend nummer als unieke identificatie. 
+
+Vervolgens is er de \textit{hash} van het voorgaande block. Een hashfunctie berekent uit een reeks bytes van variabele lengte een praktisch unieke reeks bytes van gefixeerde lengte. Dit heet de hash. Het algoritme in de hashfunctie is zo gemaakt, dat dezelfde reeks bytes altijd naar dezelfde hash evalueert en dat het origineel niet af te leiden is uit de hash. Een bekend voorbeeld van een hashfunctie is het MD5-algoritme, dat een hash van 128 bits geeft. Op Linux is dit vanuit een terminal beschikbaar met het programma \texttt{md5sum}:
+\begin{minted}[frame=lines]{bash} 
+[user@machine ~]$ echo 'abcdefg' >> file
+[user@machine ~]$ md5sum file
+020861c8c3fe177da19a7e9539a5dbac  file
+\end{minted}
+Voor gebruik in een blockchain is het belangrijk een cryptografisch sterke hashfunctie te gebruiken. Dit houdt in dat er geen botsingen tussen hashes optreden. Er is sprake van een botsing tussen hashes als twee verschillende waarden naar dezelfde hash evalueren. In het eerder genoemde MD5-algoritme zijn meerdere botsingen aangetoond en dit is dus niet bruikbaar. Momenteel wordt vaak het SHA-algoritme gebruikt.
+
+Het volgende onderdeel in ons voorbeeldblock zijn de gegevens die in het block zijn opgeslagen. Dit kan in principe van alles zijn. In het geval van cryptocurrency worden in de blokken transactiegegevens opgeslagen.
+
+Het laatste veld dat in ons block zit is de zogenaamde \textit{nonce}-waarde. Dit is een speciaal getal dat wordt gebruikt om de hash van het block te manipuleren zodat hij voldoet aan de voorwaarde voor de hash. Deze vereiste is één van de kernpunten van de kracht van blockchain.
+
+Meerdere andere zaken kunnen aan het block worden toegevoegd, zoals error checking via bij-voorbeeld CRC (Cyclic Redundancy Check), de hash van het block zelf of de eerder genoemde timestamp.
+
+\subsection{Blocks koppelen en Proof-of-Work}
+Nu we weten waaruit een block is opgebouwd is het mogelijk om preciezer in te gaan op de functie van twee onderdelen van het block: de hash van het vorige block en de \textit{nonce}-waarde.
+
+De hash van het voorgaande block is opgenomen in het huidige block, zodat deze waarde meeweegt in het bepalen van de hash van het huidige block. Deze koppeling tussen blocks verzekert dat voorgaande blocks niet veranderd kunnen worden zonder alle navolgende blocks óók te moeten herberekenen. Alle blocks wijzen immers terug naar het voorgaande block. Hier lopen we echter tegen een probleem aan. Het is namelijk voor een computer anno 2017 vrij eenvoudig om een grote hoeveelheid hashes opnieuw te berekenen. In het geval van SHA-256 is het niet ongebruikelijk voor een normale CPU om vele miljoenen hashes per seconde te kunnen uitrekenen. Om te voorkomen dat alle blokken snel herberekend kunnen worden door een kwaadwillende, moet de hash van het block aan een aantal voorwaarden voldoen. In het geval van Bitcoin moet de hash van het block met een bepaald aantal nullen beginnen. Deze vereisten heten het \textit{target}. Hoe moeilijk het is om aan het target te voldoen wordt de \textit{difficulty} genoemd, en het blijkt dat met een hogere difficulty de tijd voor het herberekenen van een block exponentieel stijgt.
+
+Omdat de hash van het block niet verandert zonder iets toe te voegen, wordt er een arbitrair getal aan het block toegevoegd. Dit is de \textit{nonce}-waarde. Door de noncewaarde te variëren (meestal door de waarde steeds met één op te hogen) kan er steeds een andere hash berekend worden totdat deze aan de voorwaarde voldoet. Het proces van het vinden van de noncewaarde wordt ook wel \textit{mining} genoemd. Zodra de noncewaarde bepaald is wordt deze in het block opgeslagen. Dit systeem van voldoen aan een bepaalde voorwaarde voor de hash door bepaling van de overeenkomstige noncewaarde staat bekend als Proof-of-Work.
+
+\subsection{Het begin van de chain}
+Het eerste block van de chain is een speciaal geval. Het block waar alle andere blocks van afstammen wordt ook wel een \textit{genesis}-block genoemd. Dit block, dat meestal als block ID 0 heeft, kan niet terugwijzen naar de hash van een voorgaand block. Dit veld wordt dan ook meestal op 0 gezet.
+
+\newpage
+\section{Implementatie}
+Met deze achtergrondinformatie is het nu mogelijk om een blockchain-implemenatie te schrijven in Python 3.6. We gebruiken hierbij twee libraries: \texttt{hashlib} en \texttt{time}. Deze libraries declareren we aan het begin van ons programma:
+\begin{python3code*}{firstnumber=1}
+#!/usr/bin/env python3
+import hashlib
+import time
+
+
+\end{python3code*}
+De library \texttt{hashlib} verleent ons de hashfunctionaliteit. In de implementatie die gedemonstreerd zal worden wordt het SHA256-algoritme gebruikt. De library \texttt{time} geeft ons de mogelijkheid om de huidige UNIX-timestamp op te vragen, die we als tijdsaanduiding in het block zullen verwerken.
+
+We maken vervolgens een \texttt{class} aan met daarin de structuur van onze blocks; de velden in dit block zijn het block ID, de hash van het voorgaande block, de UNIX-timestamp, eventuele gegevens in het block, en tenslotte de nonce-waarde.
+\begin{python3code}
+class Block:
+    def __init__(self, index, timestamp, data, previoushash, target):
+        self.index = index
+        self.previoushash = previoushash
+        self.timestamp = timestamp
+        self.data = data
+        self.nonce = 0
+        
+\end{python3code}
+
+Op het moment dat het block aangemaakt wordt, moet de noncewaarde berekend worden, zodat de hash van het block aan het target voldoet. We definiëren ons target als \textbf{het aantal bytes aan het begin van de hash dat nul moet zijn}. 
+
+\begin{python3code}
+        while True:
+            hashobject = self.calculate_hash(f'{index}'
+                                             f'{previoushash}'
+                                             f'{timestamp}'
+                                             f'{data}'
+                                             f'{self.nonce}')
+
+            if int.from_bytes(hashobject.digest()[0:target], byteorder='big') != 0:
+                self.nonce += 1
+            else:
+                self.hash = hashobject.hexdigest()
+                break
+
+    def calculate_hash(self, blockdata):
+        message = hashlib.sha256()
+        message.update(blockdata.encode())
+        return message
+
+
+\end{python3code}
+
+\section{Bronvermelding}
+
+Haber, Stornetta: How to time-stamp a digital document. \url{https://www.anf.es/pdf/Haber_Stornetta.pdf} \\
+\url{https://bitcoin.org/bitcoin.pdf} \\
+\url{https://www.bloomberg.com/news/articles/2017-10-27/what-s-in-a-name-u-k-stock-surges-394-on-blockchain-rebrand}
+\\ \url{https://blockgeeks.com/guides/proof-of-work-vs-proof-of-stake/}
+\\ \url{http://cryptomining-blog.com/4456-what-hashrate-to-expect-from-an-up-to-date-cpu/}
+
+
+\newpage
+\section{Appendix: Volledige code}
+
+
+\end{document}
