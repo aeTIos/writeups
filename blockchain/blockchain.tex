@@ -6,7 +6,7 @@
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1.25in]{geometry}
-\title{blockchain}
+\title{Blockchain}
 \date{2 november 2017}
 \author{Richard van Dijk}
 \usepackage{minted}
@@ -16,17 +16,24 @@
 \begin{document}
 \maketitle
 \newpage
+
+\newpage
 \tableofcontents
 \newpage
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
+\section{Voorwoord}
+In het kader van het onderdeel 'Rapporteren en presenteren' tijdens het opleidingstraject bij IT-Vitae kregen wij de opdracht een verslag te schrijven over een technisch onderwerp. Het onderwerp dat ik voor dit verslag gekozen heb is Blockchain. Omdat het mij interessant leek om blockchain zelf in de praktijk te brengen, heb ik tevens gekozen om naast de technische achtergrond een implementatie in Python te schrijven.
+\newpage
 \section{Inleiding}
 Blockchain lijkt het nieuwe hypewoord van deze tijd te worden. Sinds de lancering van Bitcoin in 2009 hebben cryptocurrency, en daarmee ook de achterliggende blockchaintechniek, een hoge vlucht genomen. De interesse in de markt groeit zo snel dat het lijkt op een nieuwe bubbel; zo stegen de aandelen van het Britse bedrijf \textit{On-line Plc} met bijna 400\% nadat de naam van het bedrijf veranderd werd in \textit{On-line Blockchain Plc}. Maar waar ligt de kracht van blockchain en waarom wordt het de `techniek van de toekomst' genoemd? En hoe werkt blockchain precies? Dit artikel beschrijft de achtergrond van blockchain en laat een \textit{proof-of-concept} implementatie zien in Python 3.6.
 
 \section{Geschiedenis}
-Één van de voorlopers van blockchain werd beschreven in 1990, in een artikel over hoe digitale documenten een tijdsaanduiding kunnen krijgen. In dit artikel beschrijven onderzoekers Haber en Stornetta een methode waarbij de \textit{hashes} van een document aan elkaar gelinkt worden, om rommelen met de tijdsaanduiding onmogelijk te maken.
+Één van de voorlopers van blockchain werd beschreven in 1990, in een artikel over hoe digitale documenten een tijdsaanduiding kunnen krijgen. In dit artikel beschrijven onderzoekers Haber en Stornetta een methode waarbij de \textit{hashes} van een document aan elkaar gelinkt worden, om rommelen met de tijdsaanduiding onmogelijk te maken. In 1993 werd een concept beschreven waarbij computers om een bepaalde actie uit te voeren eerst een bepaalde taak op moesten lossen, een systeem dat later de naam Proof-of-Work kreeg. In 1998 werden de eerste cryptocurrencies beschreven. Onderzoeker Nick Szabo ontwierp een gedecentraliseerd cryptocurrencysysteem gebaseerd op Proof-of-Work, genaamd Bit Gold. Het ontwerp van Bit Gold lijkt veel op het ontwerp van Bitcoin, dat in 2009 beschreven werd door een persoon met het pseudoniem Satoshi Nakamoto. Sinds 2009 zijn er vele honderden cryptocurrency gemaakt die gebaseerd zijn op dit ontwerp, dat gebaseerd is op blockchain met Proof-of-Work.
 
+\section{Toepassingen van blockchain}
+Het hoofdgebied waar blockchain wordt toegepast zijn cryptocurrency. Door de aard van blockchain (moeilijk aan te passen, eenvoudig na te lopen) is het perfect voor het opslaan van bijvoorbeeld transactiegegevens. Ook banken doen onderzoek naar hoe zij blockchain kunnen toepassen in hoe hun systemen werken. Andere toepassingen die overwogen worden zijn onder andere e-voting en digitale eigendomsaktes. Cryptocurrency zoals Ethereum gebaseerd op blockchain voegen functionaliteit zoals cloud computing toe bovenop de bestaande digitale valuta. De meeste van deze technologieën staan nog in de kinderschoenen, maar bieden wel perspectief op de brede mogelijkheden van blockchain.	
 \section{Technische achtergrond}
 \subsection{Een voorbeeldblock}
 Om beter te begrijpen hoe blockchain werkt is het goed om te bekijken wat de structuur van een block in de chain is. De meest simpele implementatie met \textit{proof-of-work} bevat in ieder geval de volgende onderdelen:
@@ -36,7 +43,7 @@ Om beter te begrijpen hoe blockchain werkt is het goed om te bekijken wat de str
 \item Gegevens die in het block zijn opgeslagen;
 \item Een \textit{nonce}-waarde.
 \end{itemize}
-In veel gevallen wordt ook een tijdsaanduiding toegevoegd, zodat het block gedateerd is. We zullen nu de verschillende onderdelen van het block uitleggen.
+In veel gevallen wordt ook een tijdsaanduiding toegevoegd, zodat het block van een datum voorzien is. We zullen nu de verschillende onderdelen van het block uitleggen.
 
 Het block ID is het volgnummer van het block in de chain. Ieder nieuw block krijgt een oplopend nummer als unieke identificatie. 
 
@@ -64,9 +71,8 @@ Omdat de hash van het block niet verandert zonder iets toe te voegen, wordt er e
 \subsection{Het begin van de chain}
 Het eerste block van de chain is een speciaal geval. Het block waar alle andere blocks van afstammen wordt ook wel een \textit{genesis}-block genoemd. Dit block, dat meestal als block ID 0 heeft, kan niet terugwijzen naar de hash van een voorgaand block. Dit veld wordt dan ook meestal op 0 gezet.
 
-\newpage
 \section{Implementatie}
-Met deze achtergrondinformatie is het nu mogelijk om een blockchain-implemenatie te schrijven in Python 3.6. We gebruiken hierbij twee libraries: \texttt{hashlib} en \texttt{time}. Deze libraries declareren we aan het begin van ons programma:
+Met deze achtergrondinformatie is het nu mogelijk om een blockchain-implemenatie te schrijven in Python 3.6. We gebruiken hierbij twee libraries: \texttt{hashlib} en \texttt{time}. Deze libraries declareren we aan het begin van het programma:
 \begin{python3code*}{firstnumber=1}
 #!/usr/bin/env python3
 import hashlib
@@ -90,6 +96,9 @@ class Block:
 
 Op het moment dat het block aangemaakt wordt, moet de noncewaarde berekend worden, zodat de hash van het block aan het target voldoet. We definiëren ons target als \textbf{het aantal bytes aan het begin van de hash dat nul moet zijn}. 
 
+De code voor het minen van het nieuwe block staat hieronder beschreven. In dit fragment wordt de functie \texttt{calculate\_hash} (L27) gedefinieerd, die op basis van een string met de gegevens van het block een SHA-256 hashobject terugstuurt. Vervolgens kan de hash in stringvorm opgevraagd worden door middel van de method \texttt{.hexdigest()}. De bytes van de hash kunnen als bytestring opgevraagd worden door de method \texttt{.digest()} aan te roepen. Van deze bytestring nemen we een slice om zoveel bytes op te vragen als benodigd door het target. Deze bytes vertalen we met de functie \texttt{int.from\_bytes()} in een getal. Als alle bytes 0 zijn, is aan de voorwaarde voor het target voldaan, en kunnen we de \texttt{hexdigest()} opslaan in het block. Is dit niet zo, dan hogen we de noncewaarde met 1 op (L22) en begint de loop opnieuw.
+
+\newpage	
 \begin{python3code}
         while True:
             hashobject = self.calculate_hash(f'{index}'
@@ -112,17 +121,57 @@ Op het moment dat het block aangemaakt wordt, moet de noncewaarde berekend worde
 
 \end{python3code}
 
+Met deze code is de opbouw van het block-object compleet. Vervolgens wordt de class Blockchain als volgt gedefiniëerd:
+
+\begin{python3code}
+class Blockchain:
+    def __init__(self, target):
+        self.chain = []
+
+        self.target = target
+
+        self.chain.append(Block(0, time.time(), 'First block of the chain!',
+                                'There is no previous hash', self.target))
+        print('Initialized chain!')
+
+    def add_block(self, data):
+        self.chain.append(Block(len(self.chain), time.time(), data, 
+                                self.chain[-1].hash, self.target))
+\end{python3code}	
+Het object Blockchain bevat dus de chain, het target, en een method om een block aan de chain toe te voegen. Ook wordt in de constructor van Blockchain het genesisblock aan de chain toegevoegd.
+
+Nu we een Blockchain- en Block-object hebben gedefinieerd, is het mogelijk om een basis-frontend te maken. We doen dit met behulp van de \texttt{input()}-functie van Python. Om te demonstreren dat de tijd voor het minen van een block toeneemt met een steeds hoger target, verhogen we het target bij ieder block met 1.
+
+\begin{python3code}
+blockchain = Blockchain(1)
+
+while True:
+    blockchain.add_block(input('Data to add to chain:'))
+    blockchain.target += 1
+\end{python3code}
+
+De code die hier beschreven staat kan eenvoudig worden uitgebreid met meer functies. Een goede toevoeging zou het valideren van de chain zijn. Een andere plek waar ruimte voor verbetering is is het target: een granulariteit van 1 byte lijkt erg laag te zijn omdat de tijd die 1, 2 en 3 bytes benodigen om te berekenen snel heel hoog wordt. Een goede oplossing zou zijn om in plaats van bytes bits te gebruiken. We hebben echter om dit script eenvoudig te houden ervoor gekozen om dit niet te doen. 
+
+\section{Samenvatting}
+In dit verslag beschrijven we de technische achtergrond van blockchain en mogelijke toepassingen daarvan. Een grote toepassing die al wijdverspreid is zijn cryptocurrency, met Bitcoin als één van de grootste spelers. Gebaseerd op de kennis van de technische achtergrond van blockchain demonstreren we een proof-of-concept geschreven in Python, waarin we een blockchain kunnen initialiseren en blocks aan de chain kunnen toevoegen. Enkele mogelijke verbeteringspunten voor het Python-programma zijn het toevoegen van validatie van de blockchain en fijnere controle over het target voor de hash.
+
 \section{Bronvermelding}
 
-Haber, Stornetta: How to time-stamp a digital document. \url{https://www.anf.es/pdf/Haber_Stornetta.pdf} \\
-\url{https://bitcoin.org/bitcoin.pdf} \\
-\url{https://www.bloomberg.com/news/articles/2017-10-27/what-s-in-a-name-u-k-stock-surges-394-on-blockchain-rebrand}
-\\ \url{https://blockgeeks.com/guides/proof-of-work-vs-proof-of-stake/}
-\\ \url{http://cryptomining-blog.com/4456-what-hashrate-to-expect-from-an-up-to-date-cpu/}
+Haber, Stornetta (1990): How to time-stamp a digital document. \url{https://www.anf.es/pdf/Haber_Stornetta.pdf}
+\\ Satoshi Nakamoto (2009): Bitcoin: A peer-to-peer Electronic Cash System \url{https://bitcoin.org/bitcoin.pdf} 
+\\ Wei Dai (1998): bmoney.txt \url{http://www.weidai.com/bmoney.txt}
+\\ Cryptomining Blog (2015): What hashrate to expect from an up-to-date CPU. \url{http://cryptomining-blog.com/4456-what-hashrate-to-expect-from-an-up-to-date-cpu/}
 
 
 \newpage
-\section{Appendix: Volledige code}
-
+\section{Appendices}
+\subsection{Appendix I: GitHub-repository}
+Om de code in dit artikel te downloaden, te forken, voor pull requests of om issues door te geven, verwijzen wij naar onze GitHub-repository:\\ 
+\url{https://github.com/aeTIos/python_blockchain}
+\subsection{Appendix II: Licentie}
+Copyright (C) 2017, Richard van Dijk \\ \\
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\\ \\
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. \\ \\
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 \end{document}
