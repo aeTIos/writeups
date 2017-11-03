@@ -7,7 +7,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1.25in]{geometry}
 \title{Blockchain}
-\date{2 november 2017}
+\date{IT-Vitae, 3 november 2017}
 \author{Richard van Dijk}
 \usepackage{minted}
 \newminted{python3}{frame=lines, linenos, firstnumber=last, stripnl=false}
@@ -25,6 +25,9 @@
 
 \section{Voorwoord}
 In het kader van het onderdeel 'Rapporteren en presenteren' tijdens het opleidingstraject bij IT-Vitae kregen wij de opdracht een verslag te schrijven over een technisch onderwerp. Het onderwerp dat ik voor dit verslag gekozen heb is Blockchain. Omdat het mij interessant leek om blockchain zelf in de praktijk te brengen, heb ik tevens gekozen om naast de technische achtergrond een implementatie in Python te schrijven.
+\newpage
+\section{Samenvatting}
+In dit verslag beschrijven we de technische achtergrond van blockchain en mogelijke toepassingen daarvan. Blockchain is een technologie die sinds begin jaren `90 aan het groeien is in de markt. Een blockchain is, zoals de naam verraadt, een `chain' van `blocks'. De blocks zijn gekoppeld door de hash van het vorige block op te nemen in de inhoud van het huidige block. Dit zorgt ervoor dat de keten niet te veranderen is zonder opnieuw de hashes van ieder block in de keten te berekenen. Omdat dit voor de meeste moderne computers heel gemakkelijk is, wordt een techniek gebruikt die Proof-of-Work heet; hierbij moet een bepaalde waarde berekend worden zodat de hash van het block aan een voorwaarde (het target) voldoet. Dit proces heet \textit{mining}. We demonstreren een \textit{proof-of-concept} geschreven in Python, waarin de belangrijkste functies van blockchain geïmplementeerd worden; het initialiseren van de blockchain en het toevoegen en minen van blocks. Enkele mogelijke verbeteringen voor dit programma zijn het toevoegen van validatie van de blockchain en fijnere controle over het target voor de hash.
 \newpage
 \section{Inleiding}
 Blockchain lijkt het nieuwe hypewoord van deze tijd te worden. Sinds de lancering van Bitcoin in 2009 hebben cryptocurrency, en daarmee ook de achterliggende blockchaintechniek, een hoge vlucht genomen. De interesse in de markt groeit zo snel dat het lijkt op een nieuwe bubbel; zo stegen de aandelen van het Britse bedrijf \textit{On-line Plc} met bijna 400\% nadat de naam van het bedrijf veranderd werd in \textit{On-line Blockchain Plc}. Maar waar ligt de kracht van blockchain en waarom wordt het de `techniek van de toekomst' genoemd? En hoe werkt blockchain precies? Dit artikel beschrijft de achtergrond van blockchain en laat een \textit{proof-of-concept} implementatie zien in Python 3.6.
@@ -150,10 +153,14 @@ while True:
     blockchain.target += 1
 \end{python3code}
 
-De code die hier beschreven staat kan eenvoudig worden uitgebreid met meer functies. Een goede toevoeging zou het valideren van de chain zijn. Een andere plek waar ruimte voor verbetering is is het target: een granulariteit van 1 byte lijkt erg laag te zijn omdat de tijd die 1, 2 en 3 bytes benodigen om te berekenen snel heel hoog wordt. Een goede oplossing zou zijn om in plaats van bytes bits te gebruiken. We hebben echter om dit script eenvoudig te houden ervoor gekozen om dit niet te doen. 
 
-\section{Samenvatting}
-In dit verslag beschrijven we de technische achtergrond van blockchain en mogelijke toepassingen daarvan. Een grote toepassing die al wijdverspreid is zijn cryptocurrency, met Bitcoin als één van de grootste spelers. Gebaseerd op de kennis van de technische achtergrond van blockchain demonstreren we een proof-of-concept geschreven in Python, waarin we een blockchain kunnen initialiseren en blocks aan de chain kunnen toevoegen. Enkele mogelijke verbeteringspunten voor het Python-programma zijn het toevoegen van validatie van de blockchain en fijnere controle over het target voor de hash.
+\section{Conclusie}
+In dit verslag is in het kort de achtergrond van blockchain beschreven. Op basis van deze technische achtergrond demonstreren we een \textit{proof-of-concept} implementatie in Python, die de basisfunctionaliteiten van blockchain bevat.
+De code die in dit verslag beschreven staat kan eenvoudig worden uitgebreid met meer functies. Een goede toevoeging zou het valideren van de chain zijn. Een andere plek waar ruimte voor verbetering is is het target: een granulariteit van 1 byte lijkt erg laag te zijn omdat de tijd die 1, 2 en 3 bytes benodigen om te berekenen snel heel hoog wordt. Een goede oplossing zou zijn om in plaats van bytes bits te gebruiken. We hebben echter om dit script eenvoudig te houden ervoor gekozen om dit niet te doen. 
+
+
+
+
 
 \section{Bronvermelding}
 
